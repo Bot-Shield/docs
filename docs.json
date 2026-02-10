@@ -1,0 +1,111 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "BotShield Documentation",
+  "colors": {
+    "primary": "#40D78C",
+    "light": "#0bcdff",
+    "dark": "#010100"
+  },
+  "favicon": {
+    "light": "https://botshield.ai/botshield.ico",
+    "dark": "https://botshield.ai/botshield.ico"
+  },
+  "navigation": {
+    "anchors": [
+      {
+        "anchor": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "what-is-botshield"
+            ]
+          },
+          {
+            "group": "SDK Overview",
+            "pages": [
+              "sdk/overview",
+              "sdk/features",
+              "sdk/use-cases"
+            ]
+          },
+          {
+            "group": "Integration Guides",
+            "pages": [
+              "integrations/shopify"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "deployment/overview"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/human-presence",
+              "concepts/device-security",
+              "concepts/action-scoped-enforcement",
+              "concepts/presence-anchors",
+              "concepts/presence-continuity"
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "API Reference",
+        "groups": [
+          {
+            "group": "API Reference",
+            "pages": [
+              "api-reference/developer-application"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "https://botshield.ai/bot-shield-logo-gradient.svg",
+    "dark": "https://botshield.ai/bot-shield-logo-gradient.svg"
+  },
+  "api": {
+    "openapi": "openapi-sdk-a.json",
+    "mdx": {
+      "server": "https://api.botshield.ai",
+      "auth": {
+        "method": "bearer"
+      }
+    },
+    "playground": {
+      "display": "interactive",
+      "proxy": true
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://botshield.ai"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Request Developer Access",
+      "href": "https://botshield.ai/pricing"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/botshield"
+    }
+  },
+  "appearance": {
+    "default": "dark"
+  }
+}

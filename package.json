@@ -1,0 +1,11 @@
+{
+  "name": "botshield-client-documentation",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "BotShield client-facing documentation powered by Mintlify",
+  "scripts": {
+    "dev": "npx mintlify dev",
+    "update:openapi": "node scripts/pull-openapi.js"
+  }
+}

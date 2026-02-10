@@ -1,0 +1,555 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BotShield SDK A API",
+    "version": "1.0.0",
+    "description": "BotShield SDK A - Signal-only verification without anchoring. Momentary human presence check with no persistence.",
+    "contact": {
+      "name": "BotShield Support",
+      "email": "support@botshield.ai",
+      "url": "https://botshield.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9991/operations",
+      "description": "Local development"
+    },
+    {
+      "url": "https://api.botshield.ai/operations",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/sdk/create-session": {
+      "post": {
+        "operationId": "SdkCreate_session",
+        "summary": "Create an Anchor Grant Window (legacy: session token)",
+        "tags": [
+          "SDK"
+        ],
+        "responses": {
+          "200": {
+            "description": "Anchor grant window created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "anchor_grant_token",
+                        "anchor_grant_expires_at",
+                        "anchor_grant_expires_in_seconds",
+                        "session_token",
+                        "expires_at",
+                        "expires_in_seconds",
+                        "organization"
+                      ],
+                      "properties": {
+                        "anchor_grant_token": {
+                          "type": "string",
+                          "description": "Canonical grant token (Bearer bss_*). Not an auth session."
+                        },
+                        "anchor_grant_expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "anchor_grant_expires_in_seconds": {
+                          "type": "integer"
+                        },
+                        "session_token": {
+                          "type": "string",
+                          "description": "Legacy alias of anchor_grant_token (kept for backward compatibility)."
+                        },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "expires_in_seconds": {
+                          "type": "integer"
+                        },
+                        "organization": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "environment"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Clerk Organization ID (partner)"
+                            },
+                            "environment": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidInputError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "partner_user_id": {
+                    "type": "string"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sdk/create-verification-link": {
+      "post": {
+        "operationId": "SdkCreate_verification_link",
+        "summary": "Create a verification request (scope/action-scoped)",
+        "tags": [
+          "SDK"
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification link created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "request_id",
+                        "deep_link",
+                        "web_url",
+                        "qr_code_url",
+                        "expires_at",
+                        "organization"
+                      ],
+                      "properties": {
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "deep_link": {
+                          "type": "string"
+                        },
+                        "web_url": {
+                          "type": "string"
+                        },
+                        "qr_code_url": {
+                          "type": "string"
+                        },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sdk_type": {
+                          "type": "string",
+                          "enum": [
+                            "signal",
+                            "presence"
+                          ]
+                        },
+                        "scope": {
+                          "type": "string",
+                          "description": "Explicit action scope. Evaluated at action time."
+                        },
+                        "organization": {
+                          "type": "object",
+                          "required": [
+                            "id"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidInputError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "return_url": {
+                    "type": "string"
+                  },
+                  "webhook_url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "scope": {
+                    "type": "string"
+                  },
+                  "sdk_type": {
+                    "type": "string",
+                    "enum": [
+                      "signal",
+                      "presence"
+                    ]
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sdk/logout": {
+      "post": {
+        "operationId": "SdkLogout",
+        "summary": "Revoke an Anchor Grant Window token (legacy: logout session)",
+        "tags": [
+          "SDK"
+        ],
+        "responses": {
+          "200": {
+            "description": "Anchor grant token revoked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "token_found": {
+                      "type": "boolean"
+                    },
+                    "revoked_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidInputError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_token": {
+                    "type": "string",
+                    "description": "Legacy field name. Provide the anchor grant token (bss_*)."
+                  }
+                },
+                "required": [
+                  "session_token"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verification/status": {
+      "get": {
+        "operationId": "verification/status",
+        "summary": "Check verification status",
+        "tags": [
+          "Verification"
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidInputError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "API key with Bearer prefix (e.g., 'Bearer bs_live_sk_...')"
+      }
+    },
+    "schemas": {
+      "InvalidInputError": {
+        "type": "object",
+        "required": [
+          "message",
+          "input",
+          "errors"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Invalid input provided"
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "propertyPath",
+                "invalidValue",
+                "message"
+              ],
+              "properties": {
+                "propertyPath": {
+                  "type": "string",
+                  "example": "email"
+                },
+                "invalidValue": {
+                  "description": "The invalid value that was provided"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "must be a valid email address"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "message",
+              "statusCode"
+            ],
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "statusCode": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "SDK",
+      "description": "SDK integration endpoints"
+    },
+    {
+      "name": "Verification",
+      "description": "Verification status and lookup"
+    },
+    {
+      "name": "Pass",
+      "description": "Pass management"
+    },
+    {
+      "name": "Devices",
+      "description": "Device management"
+    }
+  ]
+}

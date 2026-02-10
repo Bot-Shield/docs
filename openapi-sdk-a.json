@@ -12,25 +12,26 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9991/operations",
-      "description": "Local development"
-    },
-    {
       "url": "https://api.botshield.ai/operations",
       "description": "Production"
+    },
+    {
+      "url": "http://localhost:9991/operations",
+      "description": "Local development"
     }
   ],
   "paths": {
     "/sdk/create-session": {
       "post": {
         "operationId": "SdkCreate_session",
-        "summary": "Create an Anchor Grant Window (legacy: session token)",
+        "summary": "Create Session",
+        "description": "Initialize a verification session for your platform. Returns a session token (`bss_*`) used to authorize subsequent operations like creating verification links. Each session has a configurable expiration window.",
         "tags": [
           "SDK"
         ],
         "responses": {
           "200": {
-            "description": "Anchor grant window created successfully",
+            "description": "Session created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -53,18 +54,20 @@
                       "properties": {
                         "anchor_grant_token": {
                           "type": "string",
-                          "description": "Canonical grant token (Bearer bss_*). Not an auth session."
+                          "description": "Session token (Bearer bss_*). Use this to authorize create-verification-link requests."
                         },
                         "anchor_grant_expires_at": {
                           "type": "string",
-                          "format": "date-time"
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp when the session expires"
                         },
                         "anchor_grant_expires_in_seconds": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "Seconds until session expiration"
                         },
                         "session_token": {
                           "type": "string",
-                          "description": "Legacy alias of anchor_grant_token (kept for backward compatibility)."
+                          "description": "Alias of anchor_grant_token. Either field can be used."
                         },
                         "expires_at": {
                           "type": "string",
@@ -140,11 +143,13 @@
                 "type": "object",
                 "properties": {
                   "partner_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Your platform's internal user identifier for the user being verified"
                   },
                   "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "description": "Custom metadata to attach to this session"
                   }
                 },
                 "required": []
@@ -157,7 +162,8 @@
     "/sdk/create-verification-link": {
       "post": {
         "operationId": "SdkCreate_verification_link",
-        "summary": "Create a verification request (scope/action-scoped)",
+        "summary": "Create Verification Link",
+        "description": "Generate a verification request for a specific user action. Returns a deep link, web URL, and QR code URL that you present to the user. When the user completes verification, the result is delivered via webhook or available via polling.",
         "tags": [
           "SDK"
         ],
@@ -184,16 +190,20 @@
                       ],
                       "properties": {
                         "request_id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Unique identifier for this verification request. Use to poll status or match webhook callbacks."
                         },
                         "deep_link": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Deep link URL to open the BotShield app directly (mobile)"
                         },
                         "web_url": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Web URL for browser-based verification flow"
                         },
                         "qr_code_url": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "URL to a QR code image for in-store or kiosk scenarios"
                         },
                         "expires_at": {
                           "type": "string",
@@ -273,28 +283,34 @@
                 "properties": {
                   "user_email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "description": "Email of the user being verified (used for delivery if applicable)"
                   },
                   "return_url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "URL to redirect the user back to after verification completes"
                   },
                   "webhook_url": {
                     "type": "string",
-                    "format": "uri"
+                    "format": "uri",
+                    "description": "URL where BotShield will POST the verification result when complete"
                   },
                   "scope": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Action scope for this verification (e.g., 'checkout.complete', 'account.create')"
                   },
                   "sdk_type": {
                     "type": "string",
                     "enum": [
                       "signal",
                       "presence"
-                    ]
+                    ],
+                    "description": "SDK type. Use 'signal' for SDK A (currently available)"
                   },
                   "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "description": "Custom metadata attached to the verification request (e.g., order_id, amount)"
                   }
                 },
                 "required": []
@@ -307,13 +323,14 @@
     "/sdk/logout": {
       "post": {
         "operationId": "SdkLogout",
-        "summary": "Revoke an Anchor Grant Window token (legacy: logout session)",
+        "summary": "Revoke Session",
+        "description": "Revoke an active session token. Use this for cleanup after a verification flow completes, or to invalidate a session that is no longer needed.",
         "tags": [
           "SDK"
         ],
         "responses": {
           "200": {
-            "description": "Anchor grant token revoked successfully",
+            "description": "Session token revoked successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -385,7 +402,7 @@
                 "properties": {
                   "session_token": {
                     "type": "string",
-                    "description": "Legacy field name. Provide the anchor grant token (bss_*)."
+                    "description": "The session token (bss_*) to revoke"
                   }
                 },
                 "required": [
@@ -400,9 +417,21 @@
     "/verification/status": {
       "get": {
         "operationId": "verification/status",
-        "summary": "Check verification status",
+        "summary": "Check Verification Status",
+        "description": "Poll the status of a verification request by request_id. Returns the current status and, when complete, the Human Presence Signal (HPS) as a signed JWT verification token. Use this as an alternative to webhooks.",
         "tags": [
           "Verification"
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": true,
+            "description": "The verification request ID returned from create-verification-link",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -416,7 +445,32 @@
                   ],
                   "properties": {
                     "data": {
-                      "type": "object"
+                      "type": "object",
+                      "properties": {
+                        "request_id": {
+                          "type": "string",
+                          "description": "The verification request ID"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": ["pending", "verified", "expired", "failed"],
+                          "description": "Current verification status"
+                        },
+                        "verification_token": {
+                          "type": "string",
+                          "description": "Signed JWT containing the Human Presence Signal (HPS). Only present when status is 'verified'."
+                        },
+                        "verified_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Timestamp when verification completed. Only present when status is 'verified'."
+                        },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When this verification request expires"
+                        }
+                      }
                     }
                   }
                 }
@@ -460,10 +514,9 @@
   "components": {
     "securitySchemes": {
       "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization",
-        "description": "API key with Bearer prefix (e.g., 'Bearer bs_live_sk_...')"
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Your BotShield API key (e.g., bs_live_sk_... for production, bsk_test_... for test). For create-verification-link, use the session token (bss_*) returned from create-session."
       }
     },
     "schemas": {
@@ -537,19 +590,11 @@
   "tags": [
     {
       "name": "SDK",
-      "description": "SDK integration endpoints"
+      "description": "Core SDK A operations for session management and verification link creation"
     },
     {
       "name": "Verification",
-      "description": "Verification status and lookup"
-    },
-    {
-      "name": "Pass",
-      "description": "Pass management"
-    },
-    {
-      "name": "Devices",
-      "description": "Device management"
+      "description": "Verification status polling and result retrieval"
     }
   ]
 }

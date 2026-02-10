@@ -59,9 +59,26 @@
       },
       {
         "anchor": "API Reference",
+        "icon": "code",
         "groups": [
           {
-            "group": "API Reference",
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview"
+            ]
+          },
+          {
+            "group": "SDK Operations",
+            "openapi": "openapi-sdk-a.json",
+            "pages": [
+              "POST /sdk/create-session",
+              "POST /sdk/create-verification-link",
+              "GET /verification/status",
+              "POST /sdk/logout"
+            ]
+          },
+          {
+            "group": "Developer Access",
             "pages": [
               "api-reference/developer-application"
             ]
@@ -75,16 +92,13 @@
     "dark": "https://botshield.ai/bot-shield-logo-gradient.svg"
   },
   "api": {
-    "openapi": "openapi-sdk-a.json",
-    "mdx": {
-      "server": "https://api.botshield.ai",
-      "auth": {
-        "method": "bearer"
-      }
+    "baseUrl": "https://api.botshield.ai/operations",
+    "auth": {
+      "method": "bearer",
+      "name": "Authorization"
     },
     "playground": {
-      "display": "interactive",
-      "proxy": true
+      "mode": "simple"
     }
   },
   "navbar": {

@@ -13,11 +13,7 @@
   "servers": [
     {
       "url": "https://api.botshield.ai/operations",
-      "description": "Production"
-    },
-    {
-      "url": "http://localhost:9991/operations",
-      "description": "Local development"
+      "description": "BotShield API"
     }
   ],
   "paths": {

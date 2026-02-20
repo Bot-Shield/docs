@@ -1,4 +1,4 @@
-# BotShield Client Documentation
+# BotShield Client Documentation v2
 
 Client-facing documentation for BotShield, powered by [Mintlify](https://mintlify.com).
 
